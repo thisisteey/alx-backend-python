@@ -115,10 +115,21 @@ class TestGithubOrgClient(unittest.TestCase):
                 if url in mockRoutes:
                     return Mock(**{"json.return_value": mockRoutes[url]})
                 return HTTPError
-            cls.get_patcher = patch("requests.get", side_effect=mock_reponse)
+            cls.get_patcher = patch("requests.get", side_effect=mock_response)
             cls.get_patcher.start()
 
         @classmethod
         def tearDownClass(cls) -> None:
             """Deletes the class-level fixtures after running all tests"""
             cls.get_patcher.stop()
+
+        def test_public_repos(self) -> None:
+            """Test the public_repos method of the GithubOrgClient class"""
+            self.assertEqual(GithubOrgClient("google").public_repos(),
+                             self.expected_repos)
+
+        def test_public_repos_with_license(self) -> None:
+            """Test the public_repos_with_license method of the class"""
+            self.assertEqual(
+                GithubOrgClient("google").public_repos(license="apache-2.0"),
+                self.apache2_repos)
